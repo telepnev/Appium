@@ -7,12 +7,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.ScreenOrientation;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.List;
 
 public class Main {
 
@@ -176,6 +178,8 @@ public class Main {
 
     @Test
     public void saveArticleToMyList() {
+
+        String name_of_folder = "Learning Java";
         waitForElementAndClick(
                 By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
                 "Cannot clik the element 'Search Wikipedia'",
@@ -217,10 +221,9 @@ public class Main {
                 "Cannot clear input field",
                 10
         );
-
         waitForElementAndSendKeys(
                 By.id("org.wikipedia:id/text_input"),
-                "Learning Java",
+                name_of_folder,
                 "Cannot put text into article folder",
                 10
         );
@@ -240,7 +243,7 @@ public class Main {
                 5
         );
         waitForElementAndClick(
-                By.xpath("//*[@text='Learning Java']"),
+                By.xpath("//*[@text='"+ name_of_folder +"']"),
                 "Cannot click to the 'My reading list'",
                 5
         );
@@ -251,6 +254,146 @@ public class Main {
         waitForElementNotPresent(
                 By.xpath("//android.widget.TextView[@text='Java (programming language)']"),
                 "Cannot delete article 'Java (programming language)'",
+                5
+        );
+
+    }
+
+    @Test
+    public void testAmountOfNotEmptySearch() {
+
+        String article = "The Offspring";
+        String search_result_locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
+
+        waitForElementAndClick(
+                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                "Cannot clik the element 'Search Wikipedia'",
+                5
+        );
+        waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                article,
+                "",
+                5
+        );
+        waitForElementPresent(
+                By.xpath(search_result_locator),
+                "Cannot find anything by the request " + article,
+                15
+        );
+        int amount_of_search_results = getAmountOfElements(
+                By.xpath(search_result_locator)
+        );
+
+        Assert.assertTrue(
+                "We found too few results!",
+                amount_of_search_results > 0
+        );
+    }
+
+    @Test
+    public void testAmountOfEmptySearch() {
+
+        String article = "kjlhhvlaiwhupa666";
+        String search_result_locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
+        String empty_result_label = "//*[@text='No results found']";
+
+
+        waitForElementAndClick(
+                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                "Cannot clik the element 'Search Wikipedia'",
+                5
+        );
+        waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                article,
+                "",
+                5
+        );
+        waitForElementPresent(
+                By.xpath(empty_result_label),
+                "Cannot find empty result label by the request " + article,
+                10
+        );
+        assertElementNotPresent(
+                By.xpath(search_result_locator),
+                "WTF !!!"
+        );
+    }
+
+    @Test
+    public void testChangeScreenOrientation() {
+        String article = "Appium";
+
+        waitForElementAndClick(
+                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                "Cannot clik the element 'Search Wikipedia'",
+                5
+        );
+        waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                article,
+                "",
+                5
+        );
+        waitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, '" + article + "')]"),
+                "Cannot click 'search_close_btn'",
+                5
+        );
+        String title_before_rotation = waitForElementAndGetText(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "Cannot finde attribute",
+                5
+        );
+        driver.rotate(ScreenOrientation.LANDSCAPE);
+
+        String title_after_rotation = waitForElementAndGetText(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "Cannot finde attribute",
+                5
+        );
+        Assert.assertEquals(
+                "Article title has been changed after screen rotation",
+                title_before_rotation,
+                title_after_rotation
+        );
+        driver.rotate(ScreenOrientation.PORTRAIT);
+
+        String title_second_rotation = waitForElementAndGetText(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "Cannot finde attribute",
+                5
+        );
+        Assert.assertEquals(
+                "Article title has been changed after screen rotation",
+                title_before_rotation,
+                title_second_rotation
+        );
+    }
+
+    @Test
+    public void testCheckArticleTitleAfterBackground() {
+        waitForElementAndClick(
+                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                "Cannot clik the element 'Search Wikipedia'",
+                5
+        );
+        waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                "Korn",
+                "",
+                5
+        );
+        waitForElementPresent(
+                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, 'Korn')]"),
+                "Cannot find  'Korn'",
+                5
+        );
+        driver.runAppInBackground(3);
+        waitForElementPresent(
+                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, 'Korn')]"),
+                "Cannot find article after returning from background",
                 5
         );
 
@@ -310,6 +453,22 @@ public class Main {
         int start_y = (int) (size.height * 0.2);
         int end_y = (int) (size.height * 0.8);
         action.press(x, start_y).waitAction(timeOfSwipe).moveTo(x, end_y).release().perform();
+    }
+
+    private String waitForElementAndGetText(By by, String error_message, long timeOutInSecond) {
+        WebElement element = waitForElementPresent(by, error_message, timeOutInSecond);
+        return element.getText();
+    }
+    private int getAmountOfElements(By by) {
+        List elements = driver.findElements(by);
+        return elements.size();
+    }
+    private void assertElementNotPresent(By by, String error_message) {
+        int amount_of_elements = getAmountOfElements(by);
+        if (amount_of_elements > 0) {
+            String default_message = "An element '" + by.toString() + "' supposed to be not present";
+            throw new AssertionError(default_message + " " + error_message);
+        }
     }
 
     private boolean waitForElementNotPresent(By by, String error_message, long timeOutInSecond) {
