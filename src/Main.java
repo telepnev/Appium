@@ -92,29 +92,11 @@ public class Main extends CoreTestCase {
 
     @Test
     public void testAmountOfNotEmptySearch() {
-
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+        SearchPageObject.initSearchInput();
         String article = "The Offspring";
-        String search_result_locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
-
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
-                "Cannot clik the element 'Search Wikipedia'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                article,
-                "",
-                5
-        );
-        MainPageObject.waitForElementPresent(
-                By.xpath(search_result_locator),
-                "Cannot find anything by the request " + article,
-                15
-        );
-        int amount_of_search_results = MainPageObject.getAmountOfElements(
-                By.xpath(search_result_locator)
-        );
+        SearchPageObject.typeSearchLine(article);
+        int amount_of_search_results = SearchPageObject.getAmountOfFoundArticles();
 
         Assert.assertTrue(
                 "We found too few results!",
@@ -124,32 +106,17 @@ public class Main extends CoreTestCase {
 
     @Test
     public void testAmountOfEmptySearch() {
-
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+        SearchPageObject.initSearchInput();
         String article = "kjlhhvlaiwhupa666";
-        String search_result_locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']";
-        String empty_result_label = "//*[@text='No results found']";
+        SearchPageObject.typeSearchLine(article);
+        SearchPageObject.waitForEmptyResultsLabel();
+        SearchPageObject.assertThereIsNoResultOfSearch();
 
 
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
-                "Cannot clik the element 'Search Wikipedia'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                article,
-                "",
-                5
-        );
-        MainPageObject.waitForElementPresent(
-                By.xpath(empty_result_label),
-                "Cannot find empty result label by the request " + article,
-                10
-        );
-        MainPageObject.assertElementNotPresent(
-                By.xpath(search_result_locator),
-                "WTF !!!"
-        );
+
+
+
     }
 
     @Test
