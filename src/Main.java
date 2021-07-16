@@ -1,7 +1,5 @@
 import lib.CoreTestCase;
-import lib.ui.ArticlePageObject;
-import lib.ui.MainPageObject;
-import lib.ui.SearchPageObject;
+import lib.ui.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -70,84 +68,25 @@ public class Main extends CoreTestCase {
 
     @Test
     public void testSaveArticleToMyList() {
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
 
+        SearchPageObject.initSearchInput();
+        SearchPageObject.typeSearchLine("Java");
+        SearchPageObject.clickByArticleWithSubstring("Java (programming language)");
+
+        ArticlePageObject ArticlePageObject = new ArticlePageObject(driver);
+        ArticlePageObject.waitForTitleElement();
+        String article_title = ArticlePageObject.getArticleTitle();
         String name_of_folder = "Learning Java";
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
-                "Cannot clik the element 'Search Wikipedia'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                "Java",
-                "",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, 'Java (programming language)')]"),
-                "Cannot click 'search_close_btn'",
-                5
-        );
-        MainPageObject.waitForElementPresent(
-                By.xpath("//*[@resource-id='org.wikipedia:id/view_page_title_text']"),
-                "Cannot find Article title",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//android.widget.ImageView[@content-desc='More options']"),
-                "Cannot click to the More options",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[@text='Add to reading list']"),
-                "Cannot click to the 'Add to reading list'",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/onboarding_button"),
-                "Cannot find button 'GOT IT'",
-                5
-        );
-        MainPageObject.waitForElementAndClear(
-                By.id("org.wikipedia:id/text_input"),
-                "Cannot clear input field",
-                10
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.id("org.wikipedia:id/text_input"),
-                name_of_folder,
-                "Cannot put text into article folder",
-                10
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[@text='OK']"),
-                "Cannot click to the 'OK'",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"),
-                "Cannot click to the 'Navigate up'",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"),
-                "Cannot click to the 'My lists'",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[@text='" + name_of_folder + "']"),
-                "Cannot click to the 'My reading list'",
-                5
-        );
-        MainPageObject.swipeElementToLeft(
-                By.xpath("//android.widget.TextView[@text='Java (programming language)']"),
-                "Cannot find saved article 'Java (programming language)'"
-        );
-        MainPageObject.waitForElementNotPresent(
-                By.xpath("//android.widget.TextView[@text='Java (programming language)']"),
-                "Cannot delete article 'Java (programming language)'",
-                5
-        );
+        ArticlePageObject.addArticleToMyList(name_of_folder);
+        ArticlePageObject.closeArticle();
+
+        NavigationUI NavigationUI = new NavigationUI(driver);
+        NavigationUI.clickToMyLists();
+
+        MyListsPageObject MyListsPageObject = new MyListsPageObject(driver);
+        MyListsPageObject.openFolderByName(name_of_folder);
+        MyListsPageObject.swipeByArticleToDelete(article_title);
 
     }
 
