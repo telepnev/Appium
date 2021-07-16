@@ -19,7 +19,7 @@ public class CoreTestCase extends TestCase {
 
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("deviceName", "AndroidTest");
-        capabilities.setCapability("platformVersion", "10.0");
+        capabilities.setCapability("platformVersion", "8.0");
         capabilities.setCapability("appPackage", "org.wikipedia");
         capabilities.setCapability("appActivity", ".main.MainActivity");
         capabilities.setCapability("app", "/Users/telepnev/Documents/STQA/Appium/Appium/apks/org.wikipedia.apk");
