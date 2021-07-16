@@ -112,57 +112,30 @@ public class Main extends CoreTestCase {
         SearchPageObject.typeSearchLine(article);
         SearchPageObject.waitForEmptyResultsLabel();
         SearchPageObject.assertThereIsNoResultOfSearch();
-
-
-
-
-
     }
 
     @Test
     public void testChangeScreenOrientation() {
-        String article = "Appium";
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
 
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
-                "Cannot clik the element 'Search Wikipedia'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                article,
-                "",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, '" + article + "')]"),
-                "Cannot click 'search_close_btn'",
-                5
-        );
-        String title_before_rotation = MainPageObject.waitForElementAndGetText(
-                By.id("org.wikipedia:id/view_page_title_text"),
-                "Cannot finde attribute",
-                5
-        );
-        driver.rotate(ScreenOrientation.LANDSCAPE);
+        SearchPageObject.initSearchInput();
+        SearchPageObject.typeSearchLine("Java");
+        SearchPageObject.clickByArticleWithSubstring("Java (programming language)");
 
-        String title_after_rotation = MainPageObject.waitForElementAndGetText(
-                By.id("org.wikipedia:id/view_page_title_text"),
-                "Cannot finde attribute",
-                5
-        );
+        ArticlePageObject ArticlePageObject = new ArticlePageObject(driver);
+        String title_before_rotation = ArticlePageObject.getArticleTitle();
+        this.rotateScreenLandscape();
+        String title_after_rotation = ArticlePageObject.getArticleTitle();
+
         Assert.assertEquals(
                 "Article title has been changed after screen rotation",
                 title_before_rotation,
                 title_after_rotation
         );
-        driver.rotate(ScreenOrientation.PORTRAIT);
 
-        String title_second_rotation = MainPageObject.waitForElementAndGetText(
-                By.id("org.wikipedia:id/view_page_title_text"),
-                "Cannot finde attribute",
-                5
-        );
+        this.rotateScreenPortrait();
+        String title_second_rotation = ArticlePageObject.getArticleTitle();
+
         Assert.assertEquals(
                 "Article title has been changed after screen rotation",
                 title_before_rotation,
@@ -172,61 +145,13 @@ public class Main extends CoreTestCase {
 
     @Test
     public void testCheckArticleTitleAfterBackground() {
-        MainPageObject.waitForElementAndClick(
-                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
-                "Cannot clik the element 'Search Wikipedia'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                "Korn",
-                "",
-                5
-        );
-        MainPageObject.waitForElementPresent(
-                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, 'Korn')]"),
-                "Cannot find  'Korn'",
-                5
-        );
-        driver.runAppInBackground(3);
-        MainPageObject.waitForElementPresent(
-                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, 'Korn')]"),
-                "Cannot find article after returning from background",
-                5
-        );
 
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+
+        SearchPageObject.initSearchInput();
+        SearchPageObject.typeSearchLine("Korn");
+        SearchPageObject.waitForSearchResult("Korn");
+        this.backgroundApp(3);
+        SearchPageObject.waitForSearchResult("Korn");
     }
-
-    @Test
-    public void testClear() {
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/search_container"),
-                "Cannot click 'search_container'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                "Java",
-                "",
-                5
-        );
-        MainPageObject.waitForElementAndClear(
-                By.id("org.wikipedia:id/search_src_text"),
-                "Cannot find search field",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/search_close_btn"),
-                "Cannot click 'search_close_btn'",
-                5
-        );
-//
-//        waitForElementNotPresent(
-//                By.id("org.wikipedia:id/search_close_btn"),
-//                "X button still on the page",
-//                15
-//        );
-    }
-
-
 }
