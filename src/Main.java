@@ -1,5 +1,4 @@
 import lib.CoreTestCase;
-import lib.ui.ArticlePageObject;
 import lib.ui.MainPageObject;
 import lib.ui.SearchPageObject;
 import org.junit.Assert;
@@ -30,12 +29,21 @@ public class Main extends CoreTestCase {
     @Test
     public void testCancelSearch() {
 
-        SearchPageObject SearchPageObject = new SearchPageObject(driver);
-
-        SearchPageObject.initSearchInput();
-        SearchPageObject.waitForCancelButtonToAppear();
-        SearchPageObject.clickCancelSearch();
-        SearchPageObject.waitForCancelButtonToDisAppear();
+        MainPageObject.waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "Cannot click 'search_container'",
+                5
+        );
+        MainPageObject.waitForElementAndClick(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "Cannot click 'search_close_btn'",
+                5
+        );
+        MainPageObject.waitForElementNotPresent(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "X button still on the page",
+                15
+        );
     }
 
     @Test
@@ -72,14 +80,28 @@ public class Main extends CoreTestCase {
     @Test
     public void testCompareArticleTitle() {
 
-        SearchPageObject SearchPageObject = new SearchPageObject(driver);
-        ArticlePageObject ArticlePageObject = new ArticlePageObject(driver);
-
-        SearchPageObject.initSearchInput();
-        SearchPageObject.typeSearchLine("Java");
-        SearchPageObject.clickByArticleWithSubstring("Java (programming language)");
-
-        String article_title = ArticlePageObject.getArticleTitle();
+        MainPageObject.waitForElementAndClick(
+                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                "Cannot clik the element 'Search Wikipedia'",
+                5
+        );
+        MainPageObject.waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                "Java",
+                "",
+                5
+        );
+        MainPageObject.waitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/search_results_list']//*[contains(@text, 'Java (programming language)')]"),
+                "Cannot click 'search_close_btn'",
+                5
+        );
+        WebElement element_title = MainPageObject.waitForElementPresent(
+                By.xpath("//*[@resource-id='org.wikipedia:id/view_page_title_text']"),
+                "Cannot find Article title",
+                5
+        );
+        String article_title = element_title.getText();
         Assert.assertEquals(
                 "The title different",
                 "Java (programming language)",
@@ -89,15 +111,33 @@ public class Main extends CoreTestCase {
 
     @Test
     public void testSwipeArticleTitle() {
-        SearchPageObject SearchPageObject = new SearchPageObject(driver);
-        ArticlePageObject ArticlePageObject = new ArticlePageObject(driver);
 
-        SearchPageObject.initSearchInput();
-        SearchPageObject.typeSearchLine("Appium");
-        SearchPageObject.clickByArticleWithSubstring("Appium");
-
-        ArticlePageObject.waitForTitleElement();
-        ArticlePageObject.swipeToFooter();
+        MainPageObject.waitForElementAndClick(
+                By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                "Cannot clik the element 'Search Wikipedia'",
+                5
+        );
+        MainPageObject.waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                "Appium",
+                "",
+                5
+        );
+        MainPageObject.waitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][contains(@text, 'Appium')]"),
+                "Cannot click 'Appium'",
+                5
+        );
+        MainPageObject.waitForElementPresent(
+                By.xpath("//*[@resource-id='org.wikipedia:id/view_page_title_text']"),
+                "Cannot find Article title",
+                5
+        );
+        MainPageObject.swipeUpToFindElement(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_external_link']"),
+                "Cannot find end of the article",
+                5
+        );
     }
 
     @Test
