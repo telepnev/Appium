@@ -28,53 +28,12 @@ public class Main extends CoreTestCase {
 
     @Test
     public void testCancelSearch() {
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
 
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/search_container"),
-                "Cannot click 'search_container'",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/search_close_btn"),
-                "Cannot click 'search_close_btn'",
-                5
-        );
-        MainPageObject.waitForElementNotPresent(
-                By.id("org.wikipedia:id/search_close_btn"),
-                "X button still on the page",
-                15
-        );
-    }
-
-    @Test
-    public void testClear() {
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/search_container"),
-                "Cannot click 'search_container'",
-                5
-        );
-        MainPageObject.waitForElementAndSendKeys(
-                By.xpath("//*[contains(@text, 'Search…')]"),
-                "Java",
-                "",
-                5
-        );
-        MainPageObject.waitForElementAndClear(
-                By.id("org.wikipedia:id/search_src_text"),
-                "Cannot find search field",
-                5
-        );
-        MainPageObject.waitForElementAndClick(
-                By.id("org.wikipedia:id/search_close_btn"),
-                "Cannot click 'search_close_btn'",
-                5
-        );
-//
-//        waitForElementNotPresent(
-//                By.id("org.wikipedia:id/search_close_btn"),
-//                "X button still on the page",
-//                15
-//        );
+        SearchPageObject.initSearchInput();
+        SearchPageObject.waitForCancelButtonToAppear();
+        SearchPageObject.clickCancelSearch();
+        SearchPageObject.waitForCancelToDisAppear();
     }
 
     @Test
@@ -362,6 +321,38 @@ public class Main extends CoreTestCase {
         );
 
     }
+
+    @Test
+    public void testClear() {
+        MainPageObject.waitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "Cannot click 'search_container'",
+                5
+        );
+        MainPageObject.waitForElementAndSendKeys(
+                By.xpath("//*[contains(@text, 'Search…')]"),
+                "Java",
+                "",
+                5
+        );
+        MainPageObject.waitForElementAndClear(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Cannot find search field",
+                5
+        );
+        MainPageObject.waitForElementAndClick(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "Cannot click 'search_close_btn'",
+                5
+        );
+//
+//        waitForElementNotPresent(
+//                By.id("org.wikipedia:id/search_close_btn"),
+//                "X button still on the page",
+//                15
+//        );
+    }
+
 
 
 }
